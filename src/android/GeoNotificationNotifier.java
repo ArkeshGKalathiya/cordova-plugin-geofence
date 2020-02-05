@@ -46,7 +46,14 @@ public class GeoNotificationNotifier {
                 .setLargeIcon(notification.getLargeIcon())
                 .setAutoCancel(true)
                 .setContentTitle(notification.getTitle().replace("$transition", transition))
-                .setContentText(notification.getText());
+
+
+		if(transition == "enter"){
+			mBuilder.setContentText(notification.getEnterText());
+		}else{
+			mBuilder.setContentText(notification.getLeaveText());
+		}
+                
 
         if (notification.openAppOnClick) {
             String packageName = context.getPackageName();

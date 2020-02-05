@@ -18,9 +18,12 @@ public class GeoNotification {
     @Expose public int loiteringDelay;
 
     @Expose public String url;
-    @Expose public String authorization;
+    @Expose public String sessionToken;
+	@Expose public String applicationId;
+	@Expose public String javascriptId;
     @Expose public String startTime;
     @Expose public String endTime;
+
 
     @Expose public Notification notification;
 

@@ -17,7 +17,8 @@ public class Notification {
 
     @Expose public int id;
     @Expose public String title;
-    @Expose public String text;
+    @Expose public String enterText;
+	@Expose public String leaveText;
     @Expose public long[] vibrate = new long[] { 1000 };
     @Expose public String icon = "";
     @Expose public String smallIcon = "";
@@ -32,8 +33,12 @@ public class Notification {
         this.assets = AssetUtil.getInstance(context);
     }
 
-    public String getText() {
-        return this.text;
+    public String getEnterText() {
+        return this.enterText;
+    }
+
+	public String getLeaveText() {
+        return this.leaveText;
     }
 
     public String getTitle() {
@@ -114,7 +119,7 @@ public class Notification {
     }
 
     public String toString() {
-        return "Notification title: " + getTitle() + " text: " + getText();
+        return "Notification title: " + getTitle();
     }
 
     private long[] concat(long[] a, long[] b) {

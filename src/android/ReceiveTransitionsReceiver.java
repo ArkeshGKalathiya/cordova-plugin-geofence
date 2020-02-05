@@ -122,7 +122,9 @@ public class ReceiveTransitionsReceiver extends BroadcastReceiver {
                     PersistableBundle bundle = new PersistableBundle();
                     bundle.putString("id", geoNotification.id);
                     bundle.putString("url", geoNotification.url);
-                    bundle.putString("authorization", geoNotification.authorization);
+					bundle.putString('sessionToken',geoNotification.sessionToken);
+					bundle.putString('applicationId',geoNotification.applicationId);
+                    bundle.putString("javascriptId", geoNotification.javascriptId);
                     bundle.putString("transition", transition);
 
 					TimeZone tz = TimeZone.getTimeZone("UTC");

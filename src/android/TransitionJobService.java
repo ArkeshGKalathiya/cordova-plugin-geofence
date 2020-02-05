@@ -23,14 +23,16 @@ public class TransitionJobService extends JobService {
     public boolean onStartJob(final JobParameters jobParameters) {
         PersistableBundle params = jobParameters.getExtras();
         final String url = params.getString("url");
-        final String authorization = params.getString("authorization");
+        final String sessionToken = params.getString("sessionToken");
+		final String applicationId = params.getString("applicationId");
+		final String javascriptId = params.getString("javascriptId");
         final String id = params.getString("id");
         final String transition = params.getString("transition");
         final String date = params.getString("date");
 
         Thread thread = new Thread(() -> {
             try {
-                sendTransitionToServer(url, authorization, id, transition, date);
+                sendTransitionToServer(url, applicationId, javascriptId, sessionToken, id, transition, date);
                 jobFinished(jobParameters, false);
             } catch (Exception exception) {
                 // It is possible to have no network during transition from Cellular to Wifi
@@ -48,7 +50,7 @@ public class TransitionJobService extends JobService {
         return false;
     }
 
-    private void sendTransitionToServer(String urlString, String authorization, String id, String transition, String date) throws Exception {
+    private void sendTransitionToServer(String urlString, String applicationId, String javascriptId, String sessionToken, String id, String transition, String date) throws Exception {
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setReadTimeout(10000);
@@ -57,9 +59,18 @@ public class TransitionJobService extends JobService {
         conn.setDoInput(true);
         conn.setDoOutput(true);
 
-        if (authorization != null) {
-            conn.setRequestProperty("Authorization", authorization);
+        if (applicationId != null) {
+            conn.setRequestProperty("X-Parse-Application-Id", applicationId);
         }
+
+		if (javascriptId != null) {
+            conn.setRequestProperty("X-Parse-Javascript-Key", javascriptId);
+        }
+
+		if (sessionToken != null) {
+            conn.setRequestProperty("X-Parse-Session-Token", sessionToken);
+        }
+
         conn.setRequestProperty("Content-Type", "application/json");
 
         OutputStream os = conn.getOutputStream();
