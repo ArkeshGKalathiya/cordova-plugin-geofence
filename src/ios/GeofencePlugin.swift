@@ -423,7 +423,9 @@ class GeoNotificationManager : NSObject, CLLocationManagerDelegate, UNUserNotifi
                 var request = URLRequest(url: url)
                 request.httpMethod = "post"
                 request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                request.setValue(geoNotification["authorization"].stringValue, forHTTPHeaderField: "Authorization")
+                request.setValue(geoNotification["applicationId"].stringValue, forHTTPHeaderField: "X-Parse-Application-Id")
+                request.setValue(geoNotification["javascriptId"].stringValue, forHTTPHeaderField: "X-Parse-Javascript-Key")
+                request.setValue(geoNotification["sessionToken"].stringValue, forHTTPHeaderField: "X-Parse-Session-Token")
                 request.httpBody = jsonData
                 
                 let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -488,12 +490,22 @@ class GeoNotificationManager : NSObject, CLLocationManagerDelegate, UNUserNotifi
         if #available(iOS 10.0, *) {
             log("Creating notification iOS > 10")
             let content = UNMutableNotificationContent()
+            
+            if(geo["transitionType"].intValue == 1){
+                if let enterText = geo["notification"]["enterText"] as JSON? {
+                    content.body = enterText.stringValue;
+                }
+            }else{
+                if let leaveText = geo["notification"]["leaveText"] as JSON? {
+                    content.body = leaveText.stringValue;
+                }
+            }
+            
+            
             if let title = geo["notification"]["title"] as JSON? {
                 content.title = title.stringValue
             }
-            if let text = geo["notification"]["text"] as JSON? {
-                content.body = text.stringValue
-            }
+            
             content.sound = UNNotificationSound.default()
             if let json = geo["notification"]["data"] as JSON? {
                 content.userInfo = ["geofence.notification.data": json.rawString(String.Encoding.utf8.rawValue, options: [])!]
@@ -592,16 +604,12 @@ class GeoNotificationManager : NSObject, CLLocationManagerDelegate, UNUserNotifi
     
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
         log("Entering region \(region.identifier)")
-        if !isActive {
-            handleTransition(region.identifier, transitionType: 1)
-        }
+        handleTransition(region.identifier, transitionType: 1)
     }
     
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
         log("Exiting region \(region.identifier)")
-        if !isActive {
-            handleTransition(region.identifier, transitionType: 2)
-        }
+        handleTransition(region.identifier, transitionType: 2)
     }
     
     func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
