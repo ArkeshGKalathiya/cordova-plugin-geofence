@@ -45,7 +45,7 @@ public class GeoNotificationNotifier {
                 .setSmallIcon(notification.getSmallIcon())
                 .setLargeIcon(notification.getLargeIcon())
                 .setAutoCancel(true)
-                .setContentTitle(notification.getTitle().replace("$transition", transition))
+                .setContentTitle(notification.getTitle().replace("$transition", transition));
 
 
 		if(transition == "enter"){
