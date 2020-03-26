@@ -405,7 +405,7 @@ class GeoNotificationManager : NSObject, CLLocationManagerDelegate, UNUserNotifi
             geoNotification["transitionType"].int = transitionType
             
             if geoNotification["notification"].isExists() && canBeTriggered(geoNotification) {
-                notifyAbout(geoNotification)
+                notifyAbout(geoNotification,transitionType: transitionType)
             }
             
             if geoNotification["url"].isExists() {
@@ -486,24 +486,21 @@ class GeoNotificationManager : NSObject, CLLocationManagerDelegate, UNUserNotifi
         return dateFormatter.date(from: dateStr!)
     }
     
-    func notifyAbout(_ geo: JSON) {
+    func notifyAbout(_ geo: JSON, transitionType : Int) {
         if #available(iOS 10.0, *) {
             log("Creating notification iOS > 10")
             let content = UNMutableNotificationContent()
-            
-            if(geo["transitionType"].intValue == 1){
-                if let enterText = geo["notification"]["enterText"] as JSON? {
-                    content.body = enterText.stringValue;
-                }
-            }else{
-                if let leaveText = geo["notification"]["leaveText"] as JSON? {
-                    content.body = leaveText.stringValue;
-                }
-            }
-            
-            
             if let title = geo["notification"]["title"] as JSON? {
                 content.title = title.stringValue
+            }
+            if(transitionType == 1){
+                if let text = geo["notification"]["enterText"] as JSON? {
+                    content.body = text.stringValue
+                }
+            }else if(transitionType == 2){
+                if let text = geo["notification"]["leaveText"] as JSON? {
+                    content.body = text.stringValue
+                }
             }
             
             content.sound = UNNotificationSound.default()
@@ -528,8 +525,14 @@ class GeoNotificationManager : NSObject, CLLocationManagerDelegate, UNUserNotifi
             if let title = geo["notification"]["title"] as JSON? {
                 notification.alertTitle = title.stringValue
             }
-            if let text = geo["notification"]["text"] as JSON? {
-                notification.alertBody = text.stringValue
+            if(transitionType == 1){
+                if let text = geo["notification"]["enterText"] as JSON? {
+                    notification.alertBody = text.stringValue
+                }
+            }else if(transitionType == 2){
+                if let text = geo["notification"]["leaveText"] as JSON? {
+                    notification.alertBody = text.stringValue
+                }
             }
             if let json = geo["notification"]["data"] as JSON? {
                 notification.userInfo = ["geofence.notification.data": json.rawString(String.Encoding.utf8.rawValue, options: [])!]
@@ -566,9 +569,14 @@ class GeoNotificationManager : NSObject, CLLocationManagerDelegate, UNUserNotifi
                 let radius = json["radius"].doubleValue as CLLocationDistance
                 let coord = CLLocation(latitude: json["latitude"].doubleValue, longitude: json["longitude"].doubleValue)
                 
+                
+                log("Thi is for testing only...");
+                
+                let loc = location.distance(from: coord);
+                
                 if location.distance(from: coord) <= radius {
                     if !json["isInside"].boolValue {
-                        if json["transitionType"].intValue == 1 {
+                        if json["transitionType"].intValue == 1 || json["transitionType"].intValue == 3 {
                             handleTransition(json["id"].stringValue, transitionType: 1)
                         }
                         json["isInside"] = true
@@ -576,7 +584,7 @@ class GeoNotificationManager : NSObject, CLLocationManagerDelegate, UNUserNotifi
                     }
                 } else {
                     if json["isInside"].boolValue {
-                        if json["transitionType"].intValue == 2 {
+                        if json["transitionType"].intValue == 2 || json["transitionType"].intValue == 3 {
                             handleTransition(json["id"].stringValue, transitionType: 2)
                         }
                         json["isInside"] = false
@@ -604,12 +612,16 @@ class GeoNotificationManager : NSObject, CLLocationManagerDelegate, UNUserNotifi
     
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
         log("Entering region \(region.identifier)")
-        handleTransition(region.identifier, transitionType: 1)
+        if !isActive {
+            handleTransition(region.identifier, transitionType: 1)
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
         log("Exiting region \(region.identifier)")
-        handleTransition(region.identifier, transitionType: 2)
+        if !isActive {
+            handleTransition(region.identifier, transitionType: 2)
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
