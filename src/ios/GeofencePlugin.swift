@@ -196,9 +196,7 @@ func log(_ messages: [String]) {
         
         DispatchQueue.main.async {
             if let webView = self.webView {
-                if let uiWebView = webView as? UIWebView {
-                    uiWebView.stringByEvaluatingJavaScript(from: script)
-                } else if let wkWebView = webView as? WKWebView {
+                if let wkWebView = webView as? WKWebView {
                     wkWebView.evaluateJavaScript(script, completionHandler: nil)
                 }
             } else {
