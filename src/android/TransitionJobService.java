@@ -84,6 +84,7 @@ public class TransitionJobService extends JobService {
         os.close();
 
         conn.connect();
+	GeofencePlugin.onTransitionReceived(geoNotifications);
         int responseCode = conn.getResponseCode();
         Log.i(GeofencePlugin.TAG, "Send Geofence transition to server: " + responseCode);
     }
