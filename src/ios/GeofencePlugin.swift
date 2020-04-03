@@ -193,15 +193,20 @@ func log(_ messages: [String]) {
     }
     
     func evaluateJs (_ script: String) {
-        if let webView = webView {
-            if let uiWebView = webView as? UIWebView {
-                uiWebView.stringByEvaluatingJavaScript(from: script)
-            } else if let wkWebView = webView as? WKWebView {
-                wkWebView.evaluateJavaScript(script, completionHandler: nil)
+        
+        DispatchQueue.main.async {
+            if let webView = self.webView {
+                if let uiWebView = webView as? UIWebView {
+                    uiWebView.stringByEvaluatingJavaScript(from: script)
+                } else if let wkWebView = webView as? WKWebView {
+                    wkWebView.evaluateJavaScript(script, completionHandler: nil)
+                }
+            } else {
+                log("webView is nil")
             }
-        } else {
-            log("webView is nil")
         }
+        
+        
     }
     
     override func onAppTerminate() {
@@ -431,6 +436,7 @@ class GeoNotificationManager : NSObject, CLLocationManagerDelegate, UNUserNotifi
                 let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
                     if let error = error {
                         print("error:", error)
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: "handleTransition"), object: geoNotification.rawString(String.Encoding.utf8.rawValue, options: []))
                         return
                     }
                     
@@ -438,15 +444,17 @@ class GeoNotificationManager : NSObject, CLLocationManagerDelegate, UNUserNotifi
                         guard let data = data else { return }
                         guard let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: AnyObject] else { return }
                         print("json:", json)
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: "handleTransition"), object: geoNotification.rawString(String.Encoding.utf8.rawValue, options: []))
                     } catch {
                         print("error:", error)
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: "handleTransition"), object: geoNotification.rawString(String.Encoding.utf8.rawValue, options: []))
                     }
                 }
                 
                 task.resume()
             }
             
-            NotificationCenter.default.post(name: Notification.Name(rawValue: "handleTransition"), object: geoNotification.rawString(String.Encoding.utf8.rawValue, options: []))
+            
         }
     }
     
