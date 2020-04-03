@@ -91,14 +91,12 @@ public class ReceiveTransitionsReceiver extends BroadcastReceiver {
                     }
 
                     //broadcastIntent.putExtra("transitionData", Gson.get().toJson(geoNotifications));
-                    GeofencePlugin.onTransitionReceived(geoNotifications);
                 }
             } else if (transitionType == Geofence.GEOFENCE_TRANSITION_DWELL) {
                 logger.log(Log.DEBUG, "Geofence transition dwell detected");
 
                 if (geoNotifications.size() > 0) {
                     //broadcastIntent.putExtra("transitionData", Gson.get().toJson(geoNotifications));
-                    GeofencePlugin.onTransitionReceived(geoNotifications);
                 }
             } else {
                 String error = "Geofence transition error: " + transitionType;
