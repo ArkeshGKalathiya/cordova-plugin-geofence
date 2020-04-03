@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Collections;
 
 /**
  * Created by jupe on 22-02-18.
@@ -84,7 +85,7 @@ public class TransitionJobService extends JobService {
         os.close();
 
         conn.connect();
-	GeofencePlugin.onTransitionReceived(geoNotifications);
+	GeofencePlugin.onTransitionReceived(Collections.emptyList());
         int responseCode = conn.getResponseCode();
         Log.i(GeofencePlugin.TAG, "Send Geofence transition to server: " + responseCode);
     }
