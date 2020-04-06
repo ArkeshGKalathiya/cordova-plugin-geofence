@@ -137,6 +137,8 @@ public class ReceiveTransitionsReceiver extends BroadcastReceiver {
                     jobScheduler.schedule(
                             new JobInfo.Builder(1, new ComponentName(context, TransitionJobService.class))
                                     .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+				    .setMinimumLatency(1)
+                                    .setOverrideDeadline(1)
                                     .setExtras(bundle)
                                     .build()
                     );
